@@ -189,17 +189,23 @@ void NpuGlm4MoeDecoderImpl::initialize_mlp_parameters(
   param.processLogits = "normScaling";
   param.numOfSelectedExperts = {args.num_experts_per_tok()};
 
-  param.expertParallelDegree = 0;
+  if (ep_size_ > 1) {
+    param.expertParallelDegree = std::max(
+        ::xllm::EPLBConfig::get_instance().expert_parallel_degree(), 1);
+  } else {
+    param.expertParallelDegree = 0;
+  }
   param.enableFusedRouting = true;
   param.numOfSharedExperts = args.n_shared_experts();
   param.numOfExperts = args.num_experts();
-  param.numOfDeviceExperts = args.num_experts();
+  param.numOfDeviceExperts = num_experts_per_partition_;
   param.routedScalingFactor = args.routed_scaling_factor();
   param.deviceExpert.resize(num_experts_per_partition_);
   param.firstKDenseReplace = args.first_k_dense_replace();
   param.numOfGroups = args.n_group();
   param.topkGroups = atb::SVector<int>{args.topk_group()};
   param.isDenseLayer = param.layerId < param.firstKDenseReplace;
+  param.isDynamicEp = param.expertParallelDegree == 2 ? true : false;
   param.enableDispatchCombineV2 = true;
   // param.deviceExpert.resize(args.n_routed_experts());
   std::iota(
