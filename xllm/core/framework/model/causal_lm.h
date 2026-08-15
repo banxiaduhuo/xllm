@@ -49,6 +49,10 @@ namespace layer {
 struct AttentionMetadata;
 }
 
+namespace xlite {
+class XliteModelHolder;
+}
+
 struct ModelGraphMetadataState {
   virtual ~ModelGraphMetadataState() = default;
 };
@@ -151,6 +155,9 @@ class CausalLM : public torch::nn::Module {
     NOT_IMPLEMENTED();
     return false;
   }
+
+  // xlite runtime access, nullptr for non-xlite models.
+  virtual xlite::XliteModelHolder* get_xlite_holder() { return nullptr; }
 #endif
 
   virtual layer::LmHead get_lm_head() {
@@ -443,6 +450,14 @@ class CausalLMImpl : public CausalLM {
                                                      num_cached_slots,
                                                      requested_rolling_slots,
                                                      model_id);
+  }
+
+  // Forward to inner Model.
+  xlite::XliteModelHolder* get_xlite_holder() override {
+    if constexpr (detail::has_get_xlite_holder<Model>::value) {
+      return model_->get_xlite_holder();
+    }
+    return CausalLM::get_xlite_holder();
   }
 #endif
 
