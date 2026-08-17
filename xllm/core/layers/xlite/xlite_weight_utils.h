@@ -785,8 +785,10 @@ class XliteWeightUtils {
       //   indexKWeightsProj = cat{wk, weights_proj} (wk first, no transpose).
       //   indexKNorm/Bias = k_norm (LayerNorm w/ bias). indexQB = wq_b (no transpose).
       // GLM-5.2 shared layers (cfg.indexerSkipLayers[i]): skip indexer weight binding.
+      // Empty list (e.g. consumers without GLM-5.2 support) = no sharing, bind every layer.
       if (cfg.attnType == XMODEL_ATTN_DSA &&
-          (i >= cfg.indexerSkipLayers.size() || !cfg.indexerSkipLayers[i])) {
+          (cfg.indexerSkipLayers.empty() ||
+           (i < cfg.indexerSkipLayers.size() && !cfg.indexerSkipLayers[i]))) {
         torch::Tensor wk = sd.get_tensor(L + "self_attn.indexer.wk.weight");
         torch::Tensor wproj = sd.get_tensor(L + "self_attn.indexer.weights_proj.weight");
         CHECK(wk.defined()) << "[xlite] missing: " << L << "self_attn.indexer.wk.weight";
