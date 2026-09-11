@@ -19,7 +19,7 @@ cc_library(
     $<$<BOOL:${USE_NPU}>:acl_graph_bucket_policy.h>
     $<$<BOOL:${USE_NPU}>:acl_graph_executor_impl.h>
     $<$<BOOL:${USE_NPU}>:acl_graph_persistent_param.h>
-    $<$<AND:$<BOOL:${USE_NPU}>,$<BOOL:${USE_XLITE}>>:xlite_executor_impl.h>
+    $<$<BOOL:${USE_XLITE}>:xlite_executor_impl.h>
     $<$<BOOL:${USE_MLU}>:mlu_graph_executor_impl.h>
     $<$<BOOL:${USE_CUDA}>:cuda_graph_executor_impl.h>
     $<$<BOOL:${USE_MUSA}>:musa_graph_executor_impl.h>
@@ -54,7 +54,7 @@ cc_library(
     dit_executor.cpp
     $<$<BOOL:${USE_NPU}>:acl_graph_executor_impl.cpp>
     $<$<BOOL:${USE_NPU}>:acl_graph_persistent_param.cpp>
-    $<$<AND:$<BOOL:${USE_NPU}>,$<BOOL:${USE_XLITE}>>:xlite_executor_impl.cpp>
+    $<$<BOOL:${USE_XLITE}>:xlite_executor_impl.cpp>
     $<$<BOOL:${USE_MLU}>:mlu_graph_executor_impl.cpp>
     $<$<BOOL:${USE_CUDA}>:cuda_graph_executor_impl.cpp>
     $<$<BOOL:${USE_MUSA}>:musa_graph_executor_impl.cpp>
@@ -121,6 +121,6 @@ cc_library(
     $<$<BOOL:${USE_DCU}>:hip::host>
 )
 
-if(USE_NPU AND USE_XLITE)
+if(USE_XLITE)
   xllm_link_xlite(runtime)
 endif()

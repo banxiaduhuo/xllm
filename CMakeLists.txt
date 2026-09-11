@@ -24,6 +24,12 @@ if(ENABLE_HA)
   message(STATUS "ENABLE_HA=ON, Mooncake etcd high availability enabled")
 endif()
 
+# xlite is an NPU-only backend; enabling it implies NPU support.
+if(USE_XLITE)
+  set(USE_NPU ON CACHE BOOL "Enable NPU support" FORCE)
+  message(STATUS "USE_XLITE=ON, NPU support enabled")
+endif()
+
 if(DEVICE_ARCH STREQUAL "ARM")
     set(CMAKE_SYSTEM_PROCESSOR aarch64)
     set(RUST_TARGET aarch64-unknown-linux-gnu)
